@@ -6,8 +6,12 @@ import java.util.Random;
 import java.util.Vector;
 import Game.Organisms.*;
 import Utils.Direction;
+import Window.GamePanel;
 
 public class World {
+
+    private GamePanel gamePanel;
+
     private Dimension size;
 
     private int round;
@@ -17,7 +21,9 @@ public class World {
     private Organism organismMap[][];
 
 
-    public World() {
+    public World(GamePanel g) {
+        setGamePanel(g);
+
         setSize(new Dimension(20, 20));
         setRound(0);
 
@@ -35,7 +41,7 @@ public class World {
         }
     }
 
-    void init() {
+    public void init() {
         createOrganism(Organism.OrganismType.HUMAN);
         createRandomOrganisms();
     }
@@ -44,6 +50,8 @@ public class World {
         Random rand = new Random();
         int rozmiar = (int)Math.ceil(Math.sqrt((double)size.width * size.height) / 5);
         for(Organism.OrganismType type : Organism.OrganismType.values()) {
+            if(type == Organism.OrganismType.HUMAN) continue;
+
             int amount = rand.nextInt(rozmiar) + rozmiar / 2;
             for(int i = 0; i < amount; i++)
                 createOrganism(type);
@@ -64,7 +72,13 @@ public class World {
         int posX = r.nextInt(getSize().width);
         int posY = r.nextInt(getSize().height);
 
-        organism.setPosition(new Dimension(posX, posY));
+        return createOrganism(type, posX, posY);
+    }
+
+    public Organism createOrganism(Organism.OrganismType type, int x, int y) {
+        Organism organism = Organism.getOrganismByType(this, type);
+        if(organism == null) return null;
+        organism.setPosition(new Dimension(x, y));
 
         addOrganism(organism);
         return organism;
@@ -102,8 +116,11 @@ public class World {
         render();
     }
 
-    void render() {
-
+    public void render() {
+        for(int iy = 0; iy < size.height; iy++)
+            for(int ix = 0; ix < size.width; ix++)
+                if(organismMap[iy][ix] != null && getGamePanel().fields[iy][ix].getType() != organismMap[iy][ix].getType())
+                    getGamePanel().fields[iy][ix].setType(organismMap[iy][ix].getType());
     }
 
     void save() {
@@ -138,5 +155,13 @@ public class World {
 
     public void setRound(int round) {
         this.round = round;
+    }
+
+    public GamePanel getGamePanel() {
+        return gamePanel;
+    }
+
+    public void setGamePanel(GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
     }
 }
