@@ -14,32 +14,45 @@ public class MainFrame extends JFrame {
 
     static HashMap<Organism.OrganismType, Image> images = new HashMap<>();
 
+    public static MainFrame mainFrame;
+
+    public static JTextArea logsArea;
+
     public static void main(String[] args) {
-        new MainFrame();
+        mainFrame = new MainFrame(new Dimension(20, 20));
     }
 
-    private World world;
+    MainFrame(Dimension mapSize) {
+        World world = new World(mapSize);
+        world.init();
 
-    private MainFrame() {
+        setup(world, mapSize);
+    }
+
+    MainFrame(World w) {
+        setup(w, w.getSize());
+    }
+
+    private void setup(World world, Dimension mapSize) {
         setLayout(new BorderLayout());
         setTitle("Symulator Świata - Dominik Kinal gr 6 nr 160589");
-
-        world = new World();
-        world.init();
 
         setDefaultLookAndFeelDecorated(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         setJMenuBar(new FrameMenu(world));
 
-        Dimension mapSize = new Dimension(20, 20);
-
         JPanel gamePanel = new GamePanel(world);
         add(gamePanel, "Center");
 
-        JPanel logsPanel = new JPanel(new BorderLayout());
-        logsPanel.setBackground(Color.green);
-        logsPanel.setPreferredSize(new Dimension(mapSize.width * 32, 50));
+        logsArea = new JTextArea();
+        logsArea.setEditable(false);
+        logsArea.setLineWrap(true);
+        logsArea.setWrapStyleWord(true);
+
+        JScrollPane logsPanel = new JScrollPane(logsArea);
+        logsPanel.setBackground(Color.white);
+        logsPanel.setPreferredSize(new Dimension(mapSize.width * 32, 100));
         add(logsPanel, "South");
 
         pack();
@@ -49,9 +62,7 @@ public class MainFrame extends JFrame {
         for(Organism.OrganismType type : Organism.OrganismType.values()) {
             try {
                 images.put(type, ImageIO.read(new File("images/" + type.toString().toLowerCase() + ".png")));
-            } catch (IOException ignored) {
-                //TODO: Error to logs
-            }
+            } catch (IOException ignored) {}
         }
     }
 

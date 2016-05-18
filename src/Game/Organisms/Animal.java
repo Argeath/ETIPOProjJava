@@ -3,6 +3,7 @@ package Game.Organisms;
 import Utils.Direction;
 import Utils.InterruptedActionException;
 import Game.World;
+import Window.MainFrame;
 
 import java.awt.*;
 
@@ -55,11 +56,12 @@ class Animal extends Organism {
             collider.setDieing(true);
             collider.onDie();
 
-            // TODO: LOGS
+            MainFrame.logsArea.append(this + " killed " + collider + ".\n");
         } else if(getStrength() < collider.getStrength() && isAttacker) {
             setDieing(true);
             onDie();
-            // TODO: LOGS
+
+            MainFrame.logsArea.append(this + " attacked " + collider + " and died.\n");
             throw new InterruptedActionException();
         }
     }

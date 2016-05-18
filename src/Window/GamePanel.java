@@ -12,7 +12,7 @@ public class GamePanel extends JPanel {
 
     private World world;
 
-    private boolean Hexagonal = false;
+    private boolean Hexagonal = true;
 
     public Field fields[][];
 

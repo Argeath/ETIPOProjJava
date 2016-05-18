@@ -3,11 +3,15 @@ package Window;
 import Game.World;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 class FrameMenu extends JMenuBar {
+    private final JFileChooser fc = new JFileChooser();
 
     private World world;
 
@@ -21,17 +25,85 @@ class FrameMenu extends JMenuBar {
         JMenuItem item;
 
         item = new JMenuItem("New", KeyEvent.VK_N);
-        fileMenu.add(item);
+        item.addActionListener(e -> {
+            boolean gotInt = false;
+            int width, height;
+            width = height = 0;
 
-        item = new JMenuItem("Open...", KeyEvent.VK_O);
-        fileMenu.add(item);
+            do {
+                String num = JOptionPane.showInputDialog(
+                        FrameMenu.this,
+                        "Podaj szerokosc mapy: (max 30)",
+                        "Szerokosc mapy");
 
-        item = new JMenuItem("Save as...", KeyEvent.VK_S);
+                try {
+                    width = Integer.parseInt(num);
+                    gotInt = true;
+                } catch (NumberFormatException | NullPointerException ex) {
+                    gotInt = false;
+                }
+            } while(!gotInt);
+
+            do {
+                String num = JOptionPane.showInputDialog(
+                        FrameMenu.this,
+                        "Podaj wysokosc mapy: (max 30)",
+                        "Wysokosc mapy");
+
+                try {
+                    height = Integer.parseInt(num);
+                    gotInt = true;
+                } catch (NumberFormatException | NullPointerException ex) {
+                    gotInt = false;
+                }
+            } while(!gotInt);
+
+            MainFrame.mainFrame.setVisible(false);
+            MainFrame.mainFrame.dispose();
+
+            MainFrame.mainFrame = new MainFrame(new Dimension(width, height));
+        });
         fileMenu.add(item);
 
         fileMenu.addSeparator();
 
-        item = new JMenuItem("Quit", KeyEvent.VK_Q);
+        item = new JMenuItem("Open...", KeyEvent.VK_O);
+        item.addActionListener(e -> {
+            int returnVal = fc.showOpenDialog(this);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+
+                try {
+                    FileInputStream fis = new FileInputStream(file);
+                    ObjectInputStream ois = new ObjectInputStream(fis);
+                    World result = (World) ois.readObject();
+
+                    world = result;
+
+                    MainFrame.mainFrame.setVisible(false);
+                    MainFrame.mainFrame.dispose();
+
+                    MainFrame.mainFrame = new MainFrame(world);
+
+                    ois.close();
+                } catch(IOException | ClassNotFoundException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+        });
+        fileMenu.add(item);
+
+        item = new JMenuItem("Save as...", KeyEvent.VK_S);
+        item.addActionListener(e -> {
+            int returnVal = fc.showSaveDialog(this);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+
+                world.save(file);
+            }
+        });
         fileMenu.add(item);
 
         item = new JMenuItem("Cast spell", KeyEvent.VK_SPACE);

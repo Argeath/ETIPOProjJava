@@ -5,9 +5,11 @@ import Game.World;
 import Utils.InterruptedActionException;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.Random;
 
-public abstract class Organism {
+public abstract class Organism implements Serializable {
+    private static final long serialVersionUID = 2L;
 
     public enum OrganismType
     {
@@ -183,4 +185,8 @@ public abstract class Organism {
         isDieing = dieing;
     }
 
+    @Override
+    public String toString() {
+        return getType().toString().toLowerCase();
+    }
 }

@@ -1,6 +1,7 @@
 package Game;
 
 import java.awt.*;
+import java.io.*;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
@@ -8,9 +9,10 @@ import Game.Organisms.*;
 import Utils.Direction;
 import Window.GamePanel;
 
-public class World {
+public class World implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    private GamePanel gamePanel;
+    private transient GamePanel gamePanel;
 
     private Dimension size;
 
@@ -18,13 +20,14 @@ public class World {
 
     private int round;
 
+    public boolean finished = false;
+
     private Vector<Vector<Organism>> organisms;
     private Vector<Organism> toBorn;
     private Organism organismMap[][];
 
-
-    public World() {
-        setSize(new Dimension(20, 20));
+    public World(Dimension s) {
+        size = s;
         setRound(0);
 
         organismMap = new Organism[size.height][size.width];
@@ -36,9 +39,8 @@ public class World {
         organisms = new Vector<>();
         toBorn = new Vector<>();
 
-        for(int i = 0; i <= 7; i++) {
+        for(int i = 0; i <= 7; i++)
             organisms.add(new Vector<>());
-        }
     }
 
     public void init() {
@@ -52,20 +54,20 @@ public class World {
         for(Organism.OrganismType type : Organism.OrganismType.values()) {
             if(type == Organism.OrganismType.HUMAN) continue;
 
-            int amount = rand.nextInt(rozmiar) + rozmiar / 2;
+            int amount = rand.nextInt(rozmiar) + 1;
             for(int i = 0; i < amount; i++)
                 createOrganism(type);
         }
     }
 
-    public void addOrganism(Organism organism) {
+    private void addOrganism(Organism organism) {
         if(getOrganismOnPos(organism.getPosition()) == null) {
             toBorn.add(organism);
             organismMap[organism.getPosition().height][organism.getPosition().width] = organism;
         }
     }
 
-    Organism createOrganism(Organism.OrganismType type) {
+    private Organism createOrganism(Organism.OrganismType type) {
         Organism organism = Organism.getOrganismByType(this, type);
         if(organism == null) return null;
         Random r = new Random();
@@ -90,6 +92,8 @@ public class World {
     }
 
     public void update(int keyCode) {
+        if(finished) return;
+
         for(Vector<Organism> v : organisms) {
             for(Organism organism : v) {
                 if(organism.isDieing()) continue;
@@ -97,9 +101,8 @@ public class World {
                 organism.increaseAge();
                 organism.action();
 
-                if(organism.getType() == Organism.OrganismType.HUMAN) {
+                if(organism.getType() == Organism.OrganismType.HUMAN)
                     ((Human)organism).handleInput(keyCode);
-                }
             }
         }
 
@@ -107,15 +110,16 @@ public class World {
             for (Iterator<Organism> iterator = v.iterator(); iterator.hasNext();) {
                 Organism o = iterator.next();
                 if (o.isDieing()) {
-                    organismMap[o.getPosition().height][o.getPosition().width] = null;
+                    if(organismMap[o.getPosition().height][o.getPosition().width] == o)
+                        organismMap[o.getPosition().height][o.getPosition().width] = null;
                     iterator.remove();
                 }
             }
         }
 
-        for(Organism organism : toBorn) {
+        for(Organism organism : toBorn)
             organisms.elementAt(organism.getInitiative()).add(organism);
-        }
+
         toBorn.clear();
 
         render();
@@ -130,8 +134,15 @@ public class World {
                     getGamePanel().fields[iy][ix].setType(organismMap[iy][ix].getType());
     }
 
-    void save() {
-
+    public void save(File file) {
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(this);
+            oos.close();
+        } catch(IOException e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     public Organism getOrganismOnPos(Dimension pos) {
@@ -150,10 +161,6 @@ public class World {
 
     public Dimension getSize() {
         return size;
-    }
-
-    public void setSize(Dimension size) {
-        this.size = size;
     }
 
     public int getRound() {
