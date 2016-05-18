@@ -3,7 +3,9 @@ package Game.Organisms;
 import Game.World;
 import Utils.InterruptedActionException;
 
-public class Plant extends Organism {
+import java.util.Random;
+
+class Plant extends Organism {
 
     Plant(World _world) {
         super(_world);
@@ -11,7 +13,9 @@ public class Plant extends Organism {
 
     @Override
     public void action() {
-
+        Random rand = new Random();
+        if(rand.nextInt(100) < 5)
+            breed();
     }
 
     @Override

@@ -4,10 +4,11 @@ import Game.World;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class GamePanel extends JPanel implements KeyListener {
+public class GamePanel extends JPanel {
 
     private World world;
 
@@ -15,11 +16,10 @@ public class GamePanel extends JPanel implements KeyListener {
 
     public Field fields[][];
 
-    GamePanel() {
+    GamePanel(World w) {
         super(null);
-
-        world = new World(this);
-        world.init();
+        world = w;
+        world.setGamePanel(this);
 
         if(Hexagonal)
             setPreferredSize(new Dimension(world.getSize().width * 50 + 16, world.getSize().height * 17 + 19));
@@ -47,20 +47,41 @@ public class GamePanel extends JPanel implements KeyListener {
             }
 
         world.render();
+
+        setupKeys();
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {
+    private void setupKeys() {
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "LeftKey");
+        getActionMap().put("LeftKey", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                world.update(KeyEvent.VK_LEFT);
+            }
+        });
 
-    }
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "RightKey");
+        getActionMap().put("RightKey", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                world.update(KeyEvent.VK_RIGHT);
+            }
+        });
 
-    @Override
-    public void keyPressed(KeyEvent e) {
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "UpKey");
+        getActionMap().put("UpKey", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                world.update(KeyEvent.VK_UP);
+            }
+        });
 
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "DownKey");
+        getActionMap().put("DownKey", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                world.update(KeyEvent.VK_DOWN);
+            }
+        });
     }
 }

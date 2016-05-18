@@ -1,11 +1,19 @@
 package Window;
 
+import Game.World;
+
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 class FrameMenu extends JMenuBar {
 
-    FrameMenu() {
+    private World world;
+
+    FrameMenu(World w) {
+        world = w;
+
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic(KeyEvent.VK_F);
         add(fileMenu);
@@ -26,7 +34,10 @@ class FrameMenu extends JMenuBar {
         item = new JMenuItem("Quit", KeyEvent.VK_Q);
         fileMenu.add(item);
 
-        item = new JMenuItem("Next Round", KeyEvent.VK_SPACE);
+        item = new JMenuItem("Cast spell", KeyEvent.VK_SPACE);
+        item.addActionListener(e -> {
+           world.getHuman().castSpell();
+        });
         add(item);
     }
 }

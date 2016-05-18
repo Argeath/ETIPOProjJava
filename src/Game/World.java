@@ -14,6 +14,8 @@ public class World {
 
     private Dimension size;
 
+    private Human human;
+
     private int round;
 
     private Vector<Vector<Organism>> organisms;
@@ -21,9 +23,7 @@ public class World {
     private Organism organismMap[][];
 
 
-    public World(GamePanel g) {
-        setGamePanel(g);
-
+    public World() {
         setSize(new Dimension(20, 20));
         setRound(0);
 
@@ -42,7 +42,7 @@ public class World {
     }
 
     public void init() {
-        createOrganism(Organism.OrganismType.HUMAN);
+        human = (Human)createOrganism(Organism.OrganismType.HUMAN);
         createRandomOrganisms();
     }
 
@@ -58,7 +58,7 @@ public class World {
         }
     }
 
-    void addOrganism(Organism organism) {
+    public void addOrganism(Organism organism) {
         if(getOrganismOnPos(organism.getPosition()) == null) {
             toBorn.add(organism);
             organismMap[organism.getPosition().height][organism.getPosition().width] = organism;
@@ -69,8 +69,13 @@ public class World {
         Organism organism = Organism.getOrganismByType(this, type);
         if(organism == null) return null;
         Random r = new Random();
-        int posX = r.nextInt(getSize().width);
-        int posY = r.nextInt(getSize().height);
+        int posX, posY, attempts = 0;
+        do {
+            posX = r.nextInt(getSize().width);
+            posY = r.nextInt(getSize().height);
+        } while (getOrganismOnPos(new Dimension(posX, posY)) != null || ++attempts >= 5);
+
+        if(attempts >= 5) return null;
 
         return createOrganism(type, posX, posY);
     }
@@ -84,7 +89,7 @@ public class World {
         return organism;
     }
 
-    void update(int keyCode) {
+    public void update(int keyCode) {
         for(Vector<Organism> v : organisms) {
             for(Organism organism : v) {
                 if(organism.isDieing()) continue;
@@ -95,7 +100,6 @@ public class World {
                 if(organism.getType() == Organism.OrganismType.HUMAN) {
                     ((Human)organism).handleInput(keyCode);
                 }
-
             }
         }
 
@@ -103,6 +107,7 @@ public class World {
             for (Iterator<Organism> iterator = v.iterator(); iterator.hasNext();) {
                 Organism o = iterator.next();
                 if (o.isDieing()) {
+                    organismMap[o.getPosition().height][o.getPosition().width] = null;
                     iterator.remove();
                 }
             }
@@ -119,7 +124,9 @@ public class World {
     public void render() {
         for(int iy = 0; iy < size.height; iy++)
             for(int ix = 0; ix < size.width; ix++)
-                if(organismMap[iy][ix] != null && getGamePanel().fields[iy][ix].getType() != organismMap[iy][ix].getType())
+                if(organismMap[iy][ix] == null)
+                    getGamePanel().fields[iy][ix].setType(Organism.OrganismType.NONE);
+                else if(getGamePanel().fields[iy][ix].getType() != organismMap[iy][ix].getType())
                     getGamePanel().fields[iy][ix].setType(organismMap[iy][ix].getType());
     }
 
@@ -134,11 +141,11 @@ public class World {
     public void moveOrganism(Organism organism, Direction.D dir) {
         organismMap[organism.getPosition().height][organism.getPosition().width] = null;
 
-        Dimension newD = Direction.addDir(organism.getPosition(), dir);
+        Dimension newPos = Direction.addDir(organism.getPosition(), dir);
 
-        organism.setPosition(newD);
+        organism.setPosition(newPos);
 
-        organismMap[newD.height][newD.width] = organism;
+        organismMap[newPos.height][newPos.width] = organism;
     }
 
     public Dimension getSize() {
@@ -163,5 +170,9 @@ public class World {
 
     public void setGamePanel(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
+    }
+
+    public Human getHuman() {
+        return human;
     }
 }

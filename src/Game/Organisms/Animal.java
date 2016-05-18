@@ -6,7 +6,7 @@ import Game.World;
 
 import java.awt.*;
 
-public class Animal extends Organism {
+class Animal extends Organism {
     Animal(World _world) {
         super(_world);
     }
@@ -18,19 +18,50 @@ public class Animal extends Organism {
         Direction.D dir = getRandomDirection();
         if(dir == Direction.D.NONE) return;
 
-        try {
-            Dimension newD = new Dimension(getPosition().width + Direction.toDim(dir).width, getPosition().height + Direction.toDim(dir).height);
-            Organism collider = getWorld().getOrganismOnPos(newD);
-            if(collider != null)
-                collision(collider, true);
+        move(dir);
+    }
 
-            getWorld().moveOrganism(this, dir);
+    void move(Direction.D dir) {
+        if(isDieing()) return;
+
+        try {
+            Dimension newPos = new Dimension(getPosition().width + Direction.toDim(dir).width, getPosition().height + Direction.toDim(dir).height);
+            if(newPos.width >= 0 && newPos.height >= 0 && newPos.width < getWorld().getSize().width && newPos.height < getWorld().getSize().height) {
+                Organism collider = getWorld().getOrganismOnPos(newPos);
+                if (collider != null)
+                    collision(collider, true);
+
+                getWorld().moveOrganism(this, dir);
+            }
         } catch(InterruptedActionException ignored) {}
     }
 
     @Override
     void collision(Organism collider, boolean isAttacker) throws InterruptedActionException {
 
+        if(getType() == collider.getType() && getType() != OrganismType.HUMAN)
+        {
+            breed();
+            throw new InterruptedActionException();
+        }
+
+        if(getType() == collider.getType()) // Bez kanibalizmu
+            throw new InterruptedActionException();
+
+        if(isAttacker)
+            collider.collision(this);
+
+        if(getStrength() > collider.getStrength() || isAttacker && getStrength() >= collider.getStrength()) {
+            collider.setDieing(true);
+            collider.onDie();
+
+            // TODO: LOGS
+        } else if(getStrength() < collider.getStrength() && isAttacker) {
+            setDieing(true);
+            onDie();
+            // TODO: LOGS
+            throw new InterruptedActionException();
+        }
     }
 
     @Override

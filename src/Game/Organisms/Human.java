@@ -2,7 +2,9 @@ package Game.Organisms;
 
 import Game.World;
 import Utils.Direction;
+import Utils.InterruptedActionException;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 
 public class Human extends Animal {
@@ -37,11 +39,7 @@ public class Human extends Animal {
         }
     }
 
-    private void move(Direction.D dir) {
-
-    }
-
-    void castSpell() {
+    public void castSpell() {
         if(toNextSpell > 0) {
             // TODO: ADD TO LOG
             return;

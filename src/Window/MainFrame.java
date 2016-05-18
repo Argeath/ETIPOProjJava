@@ -1,11 +1,11 @@
 package Window;
 
 import Game.Organisms.Organism;
+import Game.World;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,18 +18,23 @@ public class MainFrame extends JFrame {
         new MainFrame();
     }
 
+    private World world;
+
     private MainFrame() {
         setLayout(new BorderLayout());
         setTitle("Symulator Świata - Dominik Kinal gr 6 nr 160589");
 
+        world = new World();
+        world.init();
+
         setDefaultLookAndFeelDecorated(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        setJMenuBar(new FrameMenu());
+        setJMenuBar(new FrameMenu(world));
 
         Dimension mapSize = new Dimension(20, 20);
 
-        JPanel gamePanel = new GamePanel();
+        JPanel gamePanel = new GamePanel(world);
         add(gamePanel, "Center");
 
         JPanel logsPanel = new JPanel(new BorderLayout());

@@ -61,16 +61,29 @@ public abstract class Organism {
         int n = 0;
 
         for(Direction.D dir : Direction.D.values()) {
+            if(dir == Direction.D.NONE) continue;
             Dimension newPos = Direction.addDir(position, dir);
 
             if(newPos.width >= 0 && newPos.height >= 0 && newPos.width < getWorld().getSize().width && newPos.height < getWorld().getSize().height
-                && !mustBeEmpty || getWorld().getOrganismOnPos(newPos) != null)
+                && (!mustBeEmpty || getWorld().getOrganismOnPos(newPos) == null))
                     dirs[n++] = dir;
         }
 
         if(n == 0) return Direction.D.NONE;
         Random rand = new Random();
         return dirs[rand.nextInt(n)];
+    }
+
+    void breed() {
+        Direction.D dir = getRandomDirection(true);
+        if(dir == Direction.D.NONE) return;
+
+        Organism organism = getOrganismByType(world, getType());
+        if(organism == null) return;
+
+        Dimension newPos = Direction.addDir(getPosition(), dir);
+
+        world.createOrganism(getType(), newPos.width, newPos.height);
     }
 
     public static Organism getOrganismByType(World w, OrganismType type) {
