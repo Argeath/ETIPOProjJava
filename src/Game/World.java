@@ -50,11 +50,11 @@ public class World implements Serializable {
 
     private void createRandomOrganisms() {
         Random rand = new Random();
-        int rozmiar = (int)Math.ceil(Math.sqrt((double)size.width * size.height) / 5);
+        int rozmiar = (int)Math.ceil(Math.sqrt((double)size.width * size.height) / 3);
         for(Organism.OrganismType type : Organism.OrganismType.values()) {
             if(type == Organism.OrganismType.HUMAN) continue;
 
-            int amount = rand.nextInt(rozmiar) + 1;
+            int amount = rand.nextInt(rozmiar);
             for(int i = 0; i < amount; i++)
                 createOrganism(type);
         }

@@ -37,8 +37,10 @@ class FrameMenu extends JMenuBar {
                         "Szerokosc mapy");
 
                 try {
+                    if(num == null) return;
                     width = Integer.parseInt(num);
-                    gotInt = true;
+                    if(width <= 30)
+                        gotInt = true;
                 } catch (NumberFormatException | NullPointerException ex) {
                     gotInt = false;
                 }
@@ -51,8 +53,10 @@ class FrameMenu extends JMenuBar {
                         "Wysokosc mapy");
 
                 try {
+                    if(num == null) return;
                     height = Integer.parseInt(num);
-                    gotInt = true;
+                    if(height <= 30)
+                        gotInt = true;
                 } catch (NumberFormatException | NullPointerException ex) {
                     gotInt = false;
                 }
