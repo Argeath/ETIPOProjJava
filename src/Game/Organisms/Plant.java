@@ -14,7 +14,7 @@ class Plant extends Organism {
     @Override
     public void action() {
         Random rand = new Random();
-        if(rand.nextInt(100) < 5)
+        if(rand.nextInt(100) < 4)
             breed();
     }
 

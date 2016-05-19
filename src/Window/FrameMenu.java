@@ -33,13 +33,13 @@ class FrameMenu extends JMenuBar {
             do {
                 String num = JOptionPane.showInputDialog(
                         FrameMenu.this,
-                        "Podaj szerokosc mapy: (max 30)",
+                        "Podaj szerokosc mapy: (max 40)",
                         "Szerokosc mapy");
 
                 try {
                     if(num == null) return;
                     width = Integer.parseInt(num);
-                    if(width <= 30)
+                    if(width <= 40)
                         gotInt = true;
                 } catch (NumberFormatException | NullPointerException ex) {
                     gotInt = false;
@@ -49,13 +49,13 @@ class FrameMenu extends JMenuBar {
             do {
                 String num = JOptionPane.showInputDialog(
                         FrameMenu.this,
-                        "Podaj wysokosc mapy: (max 30)",
+                        "Podaj wysokosc mapy: (max 20)",
                         "Wysokosc mapy");
 
                 try {
                     if(num == null) return;
                     height = Integer.parseInt(num);
-                    if(height <= 30)
+                    if(height <= 20)
                         gotInt = true;
                 } catch (NumberFormatException | NullPointerException ex) {
                     gotInt = false;
@@ -111,9 +111,7 @@ class FrameMenu extends JMenuBar {
         fileMenu.add(item);
 
         item = new JMenuItem("Cast spell", KeyEvent.VK_SPACE);
-        item.addActionListener(e -> {
-           world.getHuman().castSpell();
-        });
+        item.addActionListener(e -> world.getHuman().castSpell());
         add(item);
     }
 }
